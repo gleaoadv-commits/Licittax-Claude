@@ -127,7 +127,8 @@ def caber(draw, texto, peso, tam_max, tam_min, largura, max_linhas):
     return f, linhas
 
 
-def fundo() -> Image.Image:
+def fundo(h: int = None) -> Image.Image:
+    H = h or globals()["H"]
     img = Image.new("RGB", (W, H), NAVY)
     d = ImageDraw.Draw(img)
     for y in range(H):  # gradiente vertical navy -> navy2
@@ -222,6 +223,7 @@ SIGLAS = {"ti", "epi", "epis", "sus", "ubs", "upa", "cras", "creas", "pncp", "ld
 
 def limpar_objeto(s: str) -> str:
     s = re.sub(r"\s+", " ", s).strip().rstrip(".;,")
+    s = re.sub(r"^(\[[^\]]{1,30}\]\s*[-–:]?\s*)+", "", s)  # remove prefixos tipo "[LICITANET] -"
     letras = [c for c in s if c.isalpha()]
     if letras and sum(c.isupper() for c in letras) / len(letras) > 0.7:  # texto todo em CAIXA ALTA
         s = " ".join(p.upper() if sem_acento(p.strip("(),.;:")) in SIGLAS else p.lower() for p in s.split())
@@ -293,7 +295,7 @@ def legenda_licitacao(it: dict) -> str:
 
         Edital completo no PNCP: pncp.gov.br/app/editais/{cnpj}/{ano}/{seq}
 
-        Sua empresa quer disputar este ou outros processos? A Licittax cuida da análise do edital, documentação e acompanhamento da disputa. Chama no direct! 📩
+        Sua empresa quer disputar este ou outros processos? A Licittax cuida da análise do edital, documentação e acompanhamento da disputa. Chama no direct ou no WhatsApp (31) 3157-6737 📩
 
         #licitacao #licitacoes #pregao #pregaoeletronico #pncp #lei14133 #governo #comprapublica {hashtag_area} #licittax""")
 
@@ -358,6 +360,127 @@ def cmd_dica(arquivo: Path, saida: Path) -> None:
     print(json.dumps({"id": pid, "imagem": str(saida / f"{pid}.jpg"), "legenda": str(saida / f"{pid}.txt")}, ensure_ascii=False))
 
 
+# ---------------------------------------------------------------- stories
+HS = 1920          # altura do story (9:16)
+TOPO_S = 270       # área segura: evita barra de progresso/perfil
+BASE_S = HS - 300  # área segura: evita campo de resposta
+
+
+def carregar_config() -> dict:
+    c = BASE / "config.json"
+    return json.loads(c.read_text(encoding="utf-8")) if c.exists() else {}
+
+
+def cta_whatsapp(d, y, cfg, texto="Fale com a Licittax"):
+    """Bloco de chamada com WhatsApp (ou direct, se não houver número)."""
+    zap = cfg.get("whatsapp")
+    alt = 210 if (zap and cfg.get("whatsapp_link")) else 190
+    d.rounded_rectangle([MARGEM, y, W - MARGEM, y + alt], radius=36, fill=VERDE)
+    d.text((MARGEM + 44, y + 30), texto, font=fonte(600, 34), fill=BRANCO)
+    if zap:
+        d.text((MARGEM + 44, y + 82), f"WhatsApp {zap}", font=fonte(800, 50), fill=BRANCO)
+        if cfg.get("whatsapp_link"):
+            d.text((MARGEM + 44, y + 148), cfg["whatsapp_link"], font=fonte(400, 26), fill=BRANCO)
+            return y + 200
+    else:
+        d.text((MARGEM + 44, y + 82), "Chame no direct", font=fonte(800, 50), fill=BRANCO)
+    return y + 190
+
+
+def assinatura_story(d):
+    f = fonte(700, 34)
+    t = "@licittax"
+    d.text(((W - d.textlength(t, font=f)) / 2, BASE_S + 40), t, font=f, fill=BRANCO)
+    f2 = fonte(400, 24)
+    t2 = "Assessoria & Consultoria em Licitações"
+    d.text(((W - d.textlength(t2, font=f2)) / 2, BASE_S + 88), t2, font=f2, fill=CINZA)
+
+
+def arte_story_edital(it: dict, destino: Path, cfg: dict) -> None:
+    img = fundo(HS)
+    d = ImageDraw.Draw(img)
+    d.rectangle([0, HS - 14, W, HS], fill=VERDE)
+    larg = W - 2 * MARGEM
+    y = TOPO_S
+    x = pilula(d, MARGEM, y, "EDITAL ABERTO", VERDE, tam=30)
+    pilula(d, x + 14, y, it["_area"].upper(), TEAL, tam=30)
+    y += 130
+    f_obj, linhas = caber(d, limpar_objeto(it["objetoCompra"]), 700, 62, 40, larg, 7)
+    for ln in linhas:
+        d.text((MARGEM, y), ln, font=f_obj, fill=BRANCO)
+        y += int(f_obj.size * 1.26)
+    y += 50
+    u = it["unidadeOrgao"]
+    enc = dt.datetime.fromisoformat(it["dataEncerramentoProposta"])
+    campos = [
+        ("Valor estimado", brl(it["valorTotalEstimado"])),
+        ("Local", f"{u['municipioNome']} / {u['ufSigla']}"),
+        ("Propostas até", enc.strftime("%d/%m/%Y às %Hh%M")),
+    ]
+    f_rot, f_val = fonte(600, 28), fonte(700, 44)
+    for rot, val in campos:
+        d.rectangle([MARGEM, y + 8, MARGEM + 8, y + 96], fill=VERDE)
+        d.text((MARGEM + 32, y), rot.upper(), font=f_rot, fill=CINZA)
+        d.text((MARGEM + 32, y + 36), val, font=f_val, fill=BRANCO)
+        y += 130
+    y = max(y + 20, BASE_S - 290)
+    cta_whatsapp(d, y, cfg, "Quer disputar? A Licittax te ajuda")
+    d.text((MARGEM, BASE_S - 70), f"Fonte: PNCP · {it['numeroControlePNCP']}", font=fonte(400, 22), fill=CINZA)
+    assinatura_story(d)
+    img.save(destino, "JPEG", quality=92)
+
+
+def arte_story_cliente(dados: dict, destino: Path, cfg: dict) -> None:
+    img = fundo(HS)
+    d = ImageDraw.Draw(img)
+    d.rectangle([0, HS - 14, W, HS], fill=VERDE)
+    larg = W - 2 * MARGEM
+    y = TOPO_S
+    pilula(d, MARGEM, y, dados.get("selo", "LICITTAX").upper(), VERDE, tam=30)
+    y += 150
+    f_tit, linhas = caber(d, dados["titulo"], 800, 84, 54, larg, 5)
+    for ln in linhas:
+        d.text((MARGEM, y), ln, font=f_tit, fill=BRANCO)
+        y += int(f_tit.size * 1.18)
+    y += 60
+    limite = BASE_S - 320
+    for item in dados.get("itens", [])[:4]:
+        f_it = fonte(400, 40)
+        bloco = quebrar(d, item, f_it, larg - 70)
+        if y + len(bloco) * 56 > limite:
+            break
+        d.ellipse([MARGEM, y + 12, MARGEM + 30, y + 42], fill=VERDE)
+        for ln in bloco:
+            d.text((MARGEM + 60, y), ln, font=f_it, fill=BRANCO)
+            y += 56
+        y += 30
+    cta_whatsapp(d, BASE_S - 270, cfg, dados.get("cta", "Fale com um especialista"))
+    assinatura_story(d)
+    img.save(destino, "JPEG", quality=92)
+
+
+def cmd_story_edital(saida: Path) -> None:
+    hist = carregar_historico()
+    it = escolher_licitacao(hist)
+    pid = "story-edital-" + re.sub(r"[^0-9A-Za-z]+", "-", it["numeroControlePNCP"]).strip("-")
+    arte_story_edital(it, saida / f"{pid}.jpg", carregar_config())
+    (saida / f"{pid}.json").write_text(json.dumps(it, ensure_ascii=False, indent=2), encoding="utf-8")
+    hist["licitacoes"].append(it["numeroControlePNCP"])
+    hist["ultima_area"] = it["_area"]
+    salvar_historico(hist)
+    print(json.dumps({"id": pid, "imagem": str(saida / f"{pid}.jpg")}, ensure_ascii=False))
+
+
+def cmd_story_cliente(arquivo: Path, saida: Path) -> None:
+    dados = json.loads(arquivo.read_text(encoding="utf-8"))
+    hist = carregar_historico()
+    pid = "story-cliente-" + dt.datetime.now().strftime("%Y%m%d-%H%M")
+    arte_story_cliente(dados, saida / f"{pid}.jpg", carregar_config())
+    hist.setdefault("stories_cliente", []).append({"data": dt.date.today().isoformat(), "tema": dados.get("tema", dados["titulo"])})
+    salvar_historico(hist)
+    print(json.dumps({"id": pid, "imagem": str(saida / f"{pid}.jpg")}, ensure_ascii=False))
+
+
 def main():
     ap = argparse.ArgumentParser()
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -366,10 +489,19 @@ def main():
     b = sub.add_parser("dica")
     b.add_argument("arquivo", type=Path)
     b.add_argument("--saida", type=Path, default=BASE / "posts")
+    c = sub.add_parser("story-edital")
+    c.add_argument("--saida", type=Path, default=BASE / "posts")
+    e = sub.add_parser("story-cliente")
+    e.add_argument("arquivo", type=Path)
+    e.add_argument("--saida", type=Path, default=BASE / "posts")
     args = ap.parse_args()
     args.saida.mkdir(parents=True, exist_ok=True)
     if args.cmd == "licitacao":
         cmd_licitacao(args.saida)
+    elif args.cmd == "story-edital":
+        cmd_story_edital(args.saida)
+    elif args.cmd == "story-cliente":
+        cmd_story_cliente(args.arquivo, args.saida)
     else:
         cmd_dica(args.arquivo, args.saida)
 
