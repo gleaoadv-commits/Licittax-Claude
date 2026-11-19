@@ -11,9 +11,11 @@ Este repositório gera e publica automaticamente posts no Instagram da Licittax
 
 Tipo do post: **licitacao** ou **dica** (informado na tarefa programada).
 
-1. Repositório: se `/home/user/licittax-claude` não existir, anexe com `add_repo`
+1. Repositório: use o clone que já estiver no container (`/home/user/licittax-claude`,
+   `/home/user/Licittax-Claude` ou similar); se não houver, anexe com `add_repo`
    (owner `gleaoadv-commits`, repo `licittax-claude`, access `push`) e clone.
-   Trabalhe na branch `main` e faça `git pull` antes de começar.
+   Sempre trabalhe sobre a `main` atualizada: `git fetch origin main && git checkout -B main origin/main`
+   (o histórico de posts vive na `main`; outra branch não teria o histórico).
 
 2. Gerar o post:
    - **licitacao**: `python3 gerar_post.py licitacao`
@@ -31,8 +33,10 @@ Tipo do post: **licitacao** ou **dica** (informado na tarefa programada).
 3. Conferir a imagem gerada (abrir o JPEG) — texto legível, sem sobreposição.
 
 4. Publicar a imagem no GitHub:
-   `git add posts historico.json && git commit -m "Post <id>" && git push origin main`.
-   URL pública: `https://raw.githubusercontent.com/gleaoadv-commits/licittax-claude/main/posts/<id>.jpg`
+   `git add posts historico.json && git commit -m "Post <id>" && git push origin HEAD:main`.
+   URL pública (use o SHA do commit, que não depende de cache):
+   `https://raw.githubusercontent.com/gleaoadv-commits/licittax-claude/<SHA>/posts/<id>.jpg`
+   (`<SHA>` = `git rev-parse HEAD`). Confira com `curl -sI` que responde 200 `image/jpeg`.
 
 5. Publicar no Instagram: Windsor.ai `execute_action`, connector `instagram`,
    account `17841464593621126`, action `create_image_post`, params
@@ -40,7 +44,7 @@ Tipo do post: **licitacao** ou **dica** (informado na tarefa programada).
    A publicação direta já está autorizada pelo dono da conta. Se o Instagram ainda não
    conseguir baixar a imagem (cache do GitHub), aguarde ~1 min e tente de novo (até 3x).
 
-6. Registrar em `historico.json > publicados` `{data, tipo, id, media_id}` e dar commit/push.
+6. Registrar em `historico.json > publicados` `{data, tipo, id, media_id}` e dar commit e `git push origin HEAD:main`.
 
 7. Se algo falhar (PNCP fora do ar, erro do Instagram), não invente dados: registre o erro
    na resposta final da sessão.
