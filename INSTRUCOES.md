@@ -37,7 +37,7 @@ Este repositório gera e publica automaticamente conteúdo no Instagram da Licit
      "Para sua empresa"), `titulo` (até ~60 caracteres), `itens` (3 a 5 frases curtas),
      `fonte` (dispositivo legal exato, ou omita se for post de captação sem base legal) e
      `legenda` (texto do Instagram, emojis moderados, chamada final:
-     "Fale com a Licittax no direct ou no WhatsApp (31) 3157-6737 📲", hashtags terminando
+     "Fale com a Licittax: WhatsApp (31) 3157-6737 — link na bio 📲 — ou responda no direct", hashtags terminando
      em `#licittax`). Rode `python3 gerar_post.py dica arquivo.json`.
    - **story-edital**: `python3 gerar_post.py story-edital`
    - **story-cliente**: escreva um JSON com `tema`, `selo`, `titulo` (frase de impacto,
@@ -61,7 +61,7 @@ Este repositório gera e publica automaticamente conteúdo no Instagram da Licit
    account `17841464593621126`:
    - **post** → action `create_image_post`, params `{"image_url": <URL>, "caption": <posts/<id>.txt>}`
    - **story-edital / story-cliente** → action `create_story`, params `{"image_url": <URL>}`
-     (stories não têm legenda; a API não permite figurinha de link — o WhatsApp vai na arte)
+     (stories não têm legenda; a API não permite figurinha de link — a arte mostra o WhatsApp e pede "Toque no link da bio ou responda este story"; o link wa.me/553131576737 fica na bio do perfil)
 
    A publicação direta já está autorizada pelo dono da conta. Se o Instagram não conseguir
    baixar a imagem, aguarde ~1 min e tente de novo (até 3x).

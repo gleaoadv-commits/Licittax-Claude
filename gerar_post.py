@@ -295,7 +295,7 @@ def legenda_licitacao(it: dict) -> str:
 
         Edital completo no PNCP: pncp.gov.br/app/editais/{cnpj}/{ano}/{seq}
 
-        Sua empresa quer disputar este ou outros processos? A Licittax cuida da análise do edital, documentação e acompanhamento da disputa. Chama no direct ou no WhatsApp (31) 3157-6737 📩
+        Sua empresa quer disputar este ou outros processos? A Licittax cuida da análise do edital, documentação e acompanhamento da disputa. Fale no WhatsApp (31) 3157-6737 (link na bio) ou chama no direct 📩
 
         #licitacao #licitacoes #pregao #pregaoeletronico #pncp #lei14133 #governo #comprapublica {hashtag_area} #licittax""")
 
@@ -374,14 +374,14 @@ def carregar_config() -> dict:
 def cta_whatsapp(d, y, cfg, texto="Fale com a Licittax"):
     """Bloco de chamada com WhatsApp (ou direct, se não houver número)."""
     zap = cfg.get("whatsapp")
-    alt = 210 if (zap and cfg.get("whatsapp_link")) else 190
+    alt = 214 if (zap and cfg.get("cta_rodape")) else 190
     d.rounded_rectangle([MARGEM, y, W - MARGEM, y + alt], radius=36, fill=VERDE)
     d.text((MARGEM + 44, y + 30), texto, font=fonte(600, 34), fill=BRANCO)
     if zap:
         d.text((MARGEM + 44, y + 82), f"WhatsApp {zap}", font=fonte(800, 50), fill=BRANCO)
-        if cfg.get("whatsapp_link"):
-            d.text((MARGEM + 44, y + 148), cfg["whatsapp_link"], font=fonte(400, 26), fill=BRANCO)
-            return y + 200
+        if cfg.get("cta_rodape"):
+            d.text((MARGEM + 44, y + 150), cfg["cta_rodape"], font=fonte(600, 28), fill=BRANCO)
+            return y + alt
     else:
         d.text((MARGEM + 44, y + 82), "Chame no direct", font=fonte(800, 50), fill=BRANCO)
     return y + 190
@@ -423,7 +423,7 @@ def arte_story_edital(it: dict, destino: Path, cfg: dict) -> None:
         d.text((MARGEM + 32, y), rot.upper(), font=f_rot, fill=CINZA)
         d.text((MARGEM + 32, y + 36), val, font=f_val, fill=BRANCO)
         y += 130
-    y = max(y + 20, BASE_S - 290)
+    y = max(y + 20, BASE_S - 320)
     cta_whatsapp(d, y, cfg, "Quer disputar? A Licittax te ajuda")
     d.text((MARGEM, BASE_S - 70), f"Fonte: PNCP · {it['numeroControlePNCP']}", font=fonte(400, 22), fill=CINZA)
     assinatura_story(d)
