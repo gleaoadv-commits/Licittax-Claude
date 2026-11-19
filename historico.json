@@ -11,6 +11,18 @@
       "tipo": "licitacao",
       "id": "lic-01567525000176-1-000023-2026",
       "media_id": "18126429800071778"
+    },
+    {
+      "data": "2026-11-19",
+      "tipo": "story-edital",
+      "id": "story-edital-11308894000106-1-000128-2026",
+      "media_id": "18126870976985278"
+    },
+    {
+      "data": "2026-11-19",
+      "tipo": "story-cliente",
+      "id": "story-cliente-20261119-1445",
+      "media_id": "17977450236161087"
     }
   ],
   "stories_cliente": [
