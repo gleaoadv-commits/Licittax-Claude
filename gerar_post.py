@@ -293,7 +293,7 @@ def legenda_licitacao(it: dict) -> str:
 
         Edital completo no PNCP: pncp.gov.br/app/editais/{cnpj}/{ano}/{seq}
 
-        Sua empresa quer disputar este ou outros processos? A Licittax cuida da análise do edital, documentação e acompanhamento do pregão. Chama no direct! 📩
+        Sua empresa quer disputar este ou outros processos? A Licittax cuida da análise do edital, documentação e acompanhamento da disputa. Chama no direct! 📩
 
         #licitacao #licitacoes #pregao #pregaoeletronico #pncp #lei14133 #governo #comprapublica {hashtag_area} #licittax""")
 

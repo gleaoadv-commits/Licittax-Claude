@@ -4,5 +4,12 @@
   ],
   "ultima_area": "Obras e Engenharia",
   "dicas": [],
-  "publicados": []
+  "publicados": [
+    {
+      "data": "2026-11-19",
+      "tipo": "licitacao",
+      "id": "lic-01567525000176-1-000023-2026",
+      "media_id": "18126429800071778"
+    }
+  ]
 }
