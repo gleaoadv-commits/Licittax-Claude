@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3:*)",
+      "Bash(git:*)",
+      "Bash(curl:*)",
+      "Read",
+      "Write",
+      "Edit",
+      "mcp__Windsor_ai",
+      "mcp__Windsor-ai",
+      "mcp__claude-code-remote__send_later",
+      "mcp__claude-code-remote__add_repo",
+      "mcp__claude-code-remote__register_repo_root"
+    ]
+  }
+}
