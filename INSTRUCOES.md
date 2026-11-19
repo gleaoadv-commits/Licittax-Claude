@@ -5,6 +5,10 @@ Este repositório gera e publica automaticamente conteúdo no Instagram da Licit
 
 **Por dia:** 1 post no feed + 2 stories.
 
+**Intervalos (obrigatório):** os dois stories **nunca** saem em seguida. Ordem do dia:
+story → post → story, com no mínimo 4 h entre os stories e 2 h entre quaisquer publicações.
+Cada execução publica **um único** conteúdo — o tipo pedido.
+
 | Tipo | Formato | Conteúdo |
 |---|---|---|
 | `post` | Feed 1080x1350 | Educativo sobre licitações e/ou captação de clientes para a assessoria |
